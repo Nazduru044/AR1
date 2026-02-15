@@ -8,22 +8,11 @@
     
     <style>
         body { margin: 0; overflow: hidden; }
-        /* Butonun her zaman görünür ve ekranın ortasında olması için */
         #start-button {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            padding: 20px 40px;
-            background: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            z-index: 10000; /* En üstte durması için */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            padding: 20px 40px; background: #e74c3c; color: white;
+            border: none; border-radius: 50px; font-size: 18px; font-weight: bold;
+            z-index: 10000; cursor: pointer;
         }
     </style>
 </head>
@@ -31,7 +20,7 @@
 
     <button id="start-button">DENEYİMİ BAŞLAT ⚔️</button>
 
-    <a-scene mindar-image="imageTargetSrc: resim_video/targets.mind;" 
+    <a-scene mindar-image="imageTargetSrc: resim_video/targets.mind; uiLoading: yes;" 
              color-space="sRGB" 
              renderer="colorManagement: true, physicallyCorrectLights" 
              vr-mode-ui="enabled: false" 
@@ -39,7 +28,7 @@
 
         <a-assets>
             <video id="my-video" 
-                   src="resim_video/istanbul_video.mp4" 
+                   src="resim_video/Video 1.mp4" 
                    preload="auto" 
                    loop="true" 
                    crossorigin="anonymous" 
@@ -58,8 +47,21 @@
         const videoEl = document.querySelector('#my-video');
         const startBtn = document.querySelector('#start-button');
         
-        // Butona tıklandığında hem videoyu hazırla hem de butonu kaldır
         startBtn.addEventListener('click', () => {
-            videoEl.play(); // Videoyu başlat
-            videoEl.pause(); // Hemen duraklat (tarayıcı izni alındı)
-            videoEl.currentTime = 0;
+            // Tarayıcıya video oynatma izni veriyoruz
+            videoEl.play().then(() => {
+                videoEl.pause();
+                videoEl.muted = false;
+                startBtn.style.display = "none";
+            }).catch(err => {
+                console.error("Video başlatılamadı:", err);
+            });
+        });
+
+        // Hata kontrolü: mind dosyası yüklenemezse konsola yazdır
+        document.querySelector('a-scene').addEventListener("arError", (event) => {
+          alert("AR Başlatılamadı! Lütfen kamera iznini ve targets.mind dosyasını kontrol edin.");
+        });
+    </script>
+</body>
+</html>
