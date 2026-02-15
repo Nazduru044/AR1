@@ -1,1 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>İstanbul'un Fethi AR</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.2/dist/mindar-image-aframe.prod.js"></script>
+    
+    <style>
+        body { margin: 0; overflow: hidden; }
+        /* Başlat butonu tasarımı */
+        #start-button {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            background: rgba(200, 0, 0, 0.8); /* Kırmızımsı buton */
+            color: white;
+            border: 2px solid white;
+            border-radius: 20px;
+            font-family: sans-serif;
+            font-weight: bold;
+            z-index: 999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
 
+    <div id="start-button">BAŞLATMAK İÇİN DOKUN ⚔️</div>
+
+    <a-scene mindar-image="imageTargetSrc: resim_video/targets.mind;" 
+             color-space="sRGB" 
+             renderer="colorManagement: true, physicallyCorrectLights" 
+             vr-mode-ui="enabled: false" 
+             device-orientation-permission-ui="enabled: false">
+
+        <a-assets>
+            <video id="my-video" 
+                   src="resim_video/istanbul_video.mp4" 
+                   preload="auto" 
+                   loop="true" 
+                   crossorigin="anonymous" 
+                   playsinline 
+                   webkit-playsinline></video>
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-video src="#my-video" 
+                     width="1" 
+                     height="0.55" 
+                     position="0 0 0" 
+                     rotation="0 0 0"></a-video>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        const sceneEl = document.querySelector('a-scene');
+        const videoEl = document.querySelector('#my-video');
+        const startBtn = document.querySelector('#start-button');
+        
+        let isPlaying = false;
+
+        // AR sistemi hazır olduğunda butonu göster
+        sceneEl.addEventListener("arReady", (event) => {
+            console.log("Sistem hazır");
+            startBtn.style.display = "block";
+        });
+
+        // Ekrana veya butona basınca videoyu başlat
+        document.body.addEventListener('click', () => {
+            if (!isPlaying) {
+                videoEl.play();
+                videoEl.muted = false; // Sesi aç
+                startBtn.style.display = "none"; // Butonu gizle
+                isPlaying = true;
+            }
+        });
+
+        // Resim kaybolursa videoyu durdur
+        const target = document.querySelector('[mindar-image-target]');
+        target.addEventListener("targetLost", event => {
+            videoEl.pause();
+        });
+
+        // Resim bulununca (eğer daha önce başlatıldıysa) devam et
+        target.addEventListener("targetFound", event => {
+            if(isPlaying) {
+                videoEl.play();
+            }
+        });
+    </script>
+</body>
+</html>
